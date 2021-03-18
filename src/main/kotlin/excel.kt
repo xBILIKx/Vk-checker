@@ -1,5 +1,6 @@
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -50,18 +51,36 @@ fun adjustTable(refsArr: List<String>){
     val workBook = WorkbookFactory.create(inputStream)
     val workSheet = workBook.getSheetAt(0)
 
-    workSheet.getRow(0).getCell(2).setCellValue("Can write")
+    workSheet.getRow(0).createCell(2).setCellValue("Can write")
 
-    for (i in 1..refsArr.size){
-        val document = Jsoup.connect(refsArr[i-1]).get()
+    for (i in 1..refsArr.size.also(::println)){
+        val document = try {
+            Jsoup.connect(refsArr[i-1]).get()
+        }catch (ex: HttpStatusException){
+            workSheet.getRow(i).createCell(2).setCellValue(false)
+            continue
+        }
 
-        workSheet.getRow(i).getCell(2).setCellValue(checker(document))
+        workSheet.getRow(i).createCell(2).setCellValue(checker(document))
 
+        println(i-1)
     }
 
+    val outputStream = FileOutputStream(filePath)
+    workBook.write(outputStream)
+
+    workBook.close()
 }
 
-fun checker(doc: org.jsoup.nodes.Document): Boolean{
-    TODO() //проверить можно ли писать человеку, P.S через количество дочерних объектов
+private fun checker(doc: org.jsoup.nodes.Document): Boolean{
+
+    try {
+        if (doc.getElementsByClass("profile_action_btn").size < 2)
+            return false
+    }catch (ex: Exception){
+        return false
+    }
+
+    return true
 }
 
