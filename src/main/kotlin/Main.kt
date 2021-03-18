@@ -1,9 +1,16 @@
 import java.io.File
-import org.jsoup.Jsoup
 
 fun main(){
     if (!File(filePath).exists())
-        createTable ()
+        startCreating()
 
+    createSheetToTrueWrite()
+
+//    adjustTable(readTable())
+}
+
+fun startCreating(){
+    createTable()
     adjustTable(readTable())
+    createSheetToTrueWrite()
 }

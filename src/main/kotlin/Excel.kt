@@ -1,9 +1,17 @@
+import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.ArrayList
+
+import java.util.HashMap
+
+
+
 
 const val filePath = "outputFiles/Profiles.xlsx"
 
@@ -72,7 +80,44 @@ fun adjustTable(refsArr: List<String>){
     workBook.close()
 }
 
-private fun checker(doc: org.jsoup.nodes.Document) =
+fun createSheetToTrueWrite(){
+    val inputStream = FileInputStream(filePath)
+
+    val workBook = WorkbookFactory.create(inputStream)
+    val readingSheet = workBook.getSheetAt(0)
+
+    val rowList = mutableListOf<Row?>().apply {
+        readingSheet.rowIterator().apply {
+            var rowIndex = 0
+            while (hasNext()) {
+                val row = next()
+                add(row)
+                rowIndex++
+            }
+        }
+        this[0] = null
+    }.toList()
+
+    workBook.createSheet().apply {
+        var counter = 0
+        for (row in rowList){
+            if (row?.getCell(2)?.booleanCellValue == true){
+                createRow(counter).createCell(0).setCellValue(row.getCell(0).toString())
+                getRow(counter).createCell(1).setCellValue(row.getCell(1).toString())
+
+                counter++
+            }
+
+        }
+    }
+
+    val outputStream = FileOutputStream(filePath)
+    workBook.write(outputStream)
+
+    workBook.close()
+}
+
+private fun checker(doc: Document) =
     try {
         doc.getElementsByClass("profile_action_btn").size >= 2
     }catch (ex: Exception){

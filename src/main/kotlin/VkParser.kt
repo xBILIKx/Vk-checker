@@ -50,6 +50,4 @@ fun startPars(): List<Profile>{
 
 }
 
-data class Profile(val name: String = "err", val ref: String){
-
-}
+data class Profile(val name: String = "err", val ref: String)
