@@ -72,15 +72,10 @@ fun adjustTable(refsArr: List<String>){
     workBook.close()
 }
 
-private fun checker(doc: org.jsoup.nodes.Document): Boolean{
-
+private fun checker(doc: org.jsoup.nodes.Document) =
     try {
-        if (doc.getElementsByClass("profile_action_btn").size < 2)
-            return false
+        doc.getElementsByClass("profile_action_btn").size >= 2
     }catch (ex: Exception){
-        return false
+        false
     }
-
-    return true
-}
 
